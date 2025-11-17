@@ -47,7 +47,7 @@ def update_sheet():
             ]
         )
         client = gspread.authorize(creds)
-        sheet = client.open_by_key("1YuNXJ0IFguyZ0Bg5UKwvi2VskH7oYLgvA2mTEZ0").worksheet("Dump Data")
+        sheet = client.open_by_key("1YuNXJ0IFguyZ0Bg5UKwvi2VskH7oYLgvA2mTEZ0-B74").worksheet("Dump Data")
 
         # Run full SQL query (kept as-is)
         cursor.execute("""
