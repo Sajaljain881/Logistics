@@ -4,7 +4,7 @@ import mysql.connector
 import gspread
 from google.oauth2.service_account import Credentials
 import os, json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import logging
 
 # --- Minimal logging setup ---
@@ -224,37 +224,41 @@ def update_sheet():
                  "Lab Discount","Lab MRP","Promocode Discount","Coins Discount","Revenue"]]
 
         for row in rows:
-            formatted = []
+            formatted_row = []
             for val in row:
-                if isinstance(val, datetime):
-                    formatted.append(val.strftime("%Y-%m-%d %H:%M:%S"))
-                elif isinstance(val, date):
-                    formatted.append(val.strftime("%Y-%m-%d"))
-                elif val is None:
-                    formatted.append("")
-                else:
-                    formatted.append(val)
-            data.append(formatted)
 
-        # Update sheet
+                if isinstance(val, datetime):
+                    formatted_row.append(val.strftime("%Y-%m-%d %H:%M:%S"))
+
+                elif isinstance(val, date):
+                    formatted_row.append(val.strftime("%Y-%m-%d"))
+
+                elif isinstance(val, timedelta):
+                    # FIX: convert timedelta → string (e.g., "02:30:00")
+                    formatted_row.append(str(val))
+
+                elif val is None:
+                    formatted_row.append("")
+
+                else:
+                    formatted_row.append(val)
+
+            data.append(formatted_row)
+
+        # ---- Write to Google Sheet ----
         sheet.clear()
-        # Use append_rows (batch) — it's OK but can be slow for 5k rows. Still works.
         sheet.append_rows(data)
 
         cursor.close()
         db.close()
 
-        # Log short line only to stdout (Render logs)
         logger.info(f"✅ Sheet updated — {len(rows)} rows")
-
-        # Return tiny response — cron-job.org will record this
         return "OK", 200
 
     except Exception as e:
-        # Log error (truncated) to Render logs (not returned)
         logger.exception("Error while updating sheet: %s", str(e)[:500])
-        # Keep response tiny
         return "ERROR", 200
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=10000)
