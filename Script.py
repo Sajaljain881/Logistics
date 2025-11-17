@@ -55,10 +55,13 @@ def update_sheet():
         plb_history_bookings.booking_date,
         plb_history_bookings.booking_time,
         plb_history_bookings.created_at,
-        case
-          when plb_history_bookings.family_member_id = 0 then concat(c.first_name,' ',c.last_name)
-          else concat(plb_customer_family_members.first_name,' ',plb_customer_family_members.last_name)
-          end as customer_name,
+        CONCAT(
+        LPAD(HOUR(plb_history_bookings.booking_time), 2, '0'), ':',
+        LPAD(FLOOR(MINUTE(plb_history_bookings.booking_time) / 30) * 30, 2, '0'),
+        ' - ',
+        LPAD(HOUR(plb_history_bookings.booking_time + INTERVAL 30 MINUTE), 2, '0'), ':',
+        LPAD(FLOOR(MINUTE(plb_history_bookings.booking_time + INTERVAL 30 MINUTE) / 30) * 30, 2, '0')
+    ) AS slot,
           c.mobile_number,
           case
           when plb_history_bookings.family_member_id = 0 then c.gender
@@ -136,10 +139,13 @@ def update_sheet():
         plb_bookings.booking_date, 
         plb_bookings.booking_time,                      
         plb_bookings.created_at,
-        case
-          when plb_bookings.family_member_id = 0 then concat(c.first_name,' ',c.last_name)
-          else concat(plb_customer_family_members.first_name,' ',plb_customer_family_members.last_name)
-          end as customer_name,
+        CONCAT(
+        LPAD(HOUR(plb_bookings.booking_time), 2, '0'), ':',
+        LPAD(FLOOR(MINUTE(plb_bookings.booking_time) / 30) * 30, 2, '0'),
+        ' - ',
+        LPAD(HOUR(plb_bookings.booking_time + INTERVAL 30 MINUTE), 2, '0'), ':',
+        LPAD(FLOOR(MINUTE(plb_bookings.booking_time + INTERVAL 30 MINUTE) / 30) * 30, 2, '0')
+    ) AS slot,
           c.mobile_number,
           case
           when plb_bookings.family_member_id = 0 then c.gender
@@ -218,7 +224,7 @@ def update_sheet():
         rows = cursor.fetchall()
 
         # Prepare header + data (same as before)
-        data = [["Booking Id", "Booking Date","Booking Time", "Created Date", "Customer Name", "Mobile Number", "Gender",
+        data = [["Booking Id", "Booking Date","Booking Time", "Created Date", "Booking Slot", "Mobile Number", "Gender",
                  "Date of Birth","Booking By","Created by Name","Customer Type","Booking Stage","Status","Booking Status",
                  "Promocode","Channel","Lab","City","Tests","Tests Type","Phlebo Name","Pincode","Actual Amount",
                  "Lab Discount","Lab MRP","Promocode Discount","Coins Discount","Revenue"]]
