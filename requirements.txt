@@ -4,7 +4,6 @@ certifi==2024.8.30
 charset-normalizer==3.4.0
 click==8.1.7
 colorama==0.4.6
-deta==1.2.0
 Flask==3.1.0
 google-auth==2.37.0
 google-auth-oauthlib==1.2.1
