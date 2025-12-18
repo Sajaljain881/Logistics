@@ -68,9 +68,9 @@ def update_sheet():
           else plb_customer_family_members.gender
           end as customer_gender,
           case
-          when plb_history_bookings.family_member_id = 0 then c.dob
-          else plb_customer_family_members.dob
-          end as customer_dob,
+          when plb_history_bookings.family_member_id = 0 then TIMESTAMPDIFF( YEAR,c.dob,CURDATE())
+          else TIMESTAMPDIFF(YEAR,plb_customer_family_members.dob,CURDATE())
+          end as customer_age,
         plb_history_bookings.booking_by,
         concat(plb_manages.first_name,' ',plb_manages.last_name) as Created_by_name,
         case when plb_history_bookings.booking_admin_type = 1 then 'P1 - Curelo New'
@@ -112,6 +112,12 @@ def update_sheet():
           end SEPARATOR ', ') as tests_type,
         concat(plb_phlebos.first_name,' ',plb_phlebos.last_name) as phlebo_name,
           plb_customer_addresses.pincode,
+          plb_customer_addresses.complete_address,
+          case
+          when plb_history_bookings.family_member_id = 0 then concat(c.first_name,' ',c.last_name)
+          else concat(plb_customer_family_members.first_name,' ',plb_customer_family_members.last_name)
+          end as customer_name,
+          plb_history_bookings.booking_note,
         plb_history_bookings.total_actual_amount,
         plb_history_bookings.discount_amount,
         (plb_history_bookings.total_actual_amount-plb_history_bookings.discount_amount) as lab_mrp,
@@ -152,9 +158,9 @@ def update_sheet():
           else plb_customer_family_members.gender
           end as customer_gender,
           case
-          when plb_bookings.family_member_id = 0 then c.dob
-          else plb_customer_family_members.dob
-          end as customer_dob,
+          when plb_bookings.family_member_id = 0 then TIMESTAMPDIFF( YEAR,c.dob,CURDATE())
+          else TIMESTAMPDIFF(YEAR,plb_customer_family_members.dob,CURDATE())
+          end as customer_age,
         plb_bookings.booking_by,
         concat(plb_manages.first_name,' ',plb_manages.last_name) as Created_by_name,
         case when plb_bookings.booking_admin_type = 1 then 'P1 - Curelo New'
@@ -196,6 +202,12 @@ def update_sheet():
           end SEPARATOR ', ') as tests_type,
         concat(plb_phlebos.first_name,' ',plb_phlebos.last_name) as phlebo_name,
           plb_customer_addresses.pincode,
+          plb_customer_addresses.complete_address,
+          case
+          when plb_bookings.family_member_id = 0 then concat(c.first_name,' ',c.last_name)
+          else concat(plb_customer_family_members.first_name,' ',plb_customer_family_members.last_name)
+          end as customer_name,
+          plb_bookings.booking_note,
         plb_bookings.total_actual_amount,
         plb_bookings.discount_amount,
         (plb_bookings.total_actual_amount-plb_bookings.discount_amount) as lab_mrp,
@@ -225,8 +237,8 @@ def update_sheet():
 
         # Prepare header + data (same as before)
         data = [["Booking Id", "Booking Date","Booking Time", "Created Date", "Booking Slot", "Mobile Number", "Gender",
-                 "Date of Birth","Booking By","Created by Name","Customer Type","Booking Stage","Status","Booking Status",
-                 "Promocode","Channel","Lab","City","Tests","Tests Type","Phlebo Name","Pincode","Actual Amount",
+                 "Age","Booking By","Created by Name","Customer Type","Booking Stage","Status","Booking Status",
+                 "Promocode","Channel","Lab","City","Tests","Tests Type","Phlebo Name","Pincode","Complete Address","Customer Name","Booking Note","Actual Amount",
                  "Lab Discount","Lab MRP","Promocode Discount","Coins Discount","Revenue"]]
 
         for row in rows:
